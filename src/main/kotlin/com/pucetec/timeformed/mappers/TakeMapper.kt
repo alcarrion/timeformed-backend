@@ -9,24 +9,21 @@ import org.springframework.stereotype.Component
 @Component
 class TakeMapper {
 
-    fun toEntity(request: TakeRequest, treatmentMed: TreatmentMed): Take {
-        return Take(
+    fun toEntity(request: TakeRequest, treatmentMed: TreatmentMed): Take =
+        Take(
             treatmentMed = treatmentMed,
-            scheduledAt = request.scheduledAt,
-            takenAt = request.takenAt,
-            confirmed = request.confirmed
+            scheduledDateTime = request.scheduledDateTime,
+            takenDateTime = request.takenDateTime,
+            wasTaken = request.wasTaken
         )
-    }
 
-    fun toResponse(entity: Take): TakeResponse {
-        return TakeResponse(
+    fun toResponse(entity: Take): TakeResponse =
+        TakeResponse(
             id = entity.id,
-            treatmentMedId = entity.treatmentMed.id,
-            scheduledAt = entity.scheduledAt,
-            takenAt = entity.takenAt,
-            confirmed = entity.confirmed
+            scheduledDateTime = entity.scheduledDateTime,
+            takenDateTime = entity.takenDateTime,
+            wasTaken = entity.wasTaken
         )
-    }
 
     fun toResponseList(entities: List<Take>): List<TakeResponse> =
         entities.map { toResponse(it) }
