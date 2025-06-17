@@ -109,7 +109,32 @@ Esto levantará el contenedor de PostgreSQL necesario para el backend.
 ./gradlew bootRun
 ```
 
----
+## 🛠️ Conexión en DBeaver
+
+Si deseas conectarte a tu base de datos PostgreSQL desde DBeaver para revisar, insertar o borrar datos directamente, sigue estos pasos:
+
+### 🔧 Configuración recomendada:
+
+1. Abre **DBeaver**.
+2. Haz clic en **Archivo > Nueva conexión**.
+3. Selecciona **PostgreSQL**.
+4. Completa los siguientes parámetros:
+
+| Parámetro       | Valor          |
+|-----------------|----------------|
+| **Host**        | `localhost`    |
+| **Puerto**      | `6969`         |
+| **Base de datos** | `timeformedb` |
+| **Usuario**     | `admin`        |
+| **Contraseña**  | `admin`        |
+
+5. Haz clic en **Probar conexión**.
+6. Si todo está bien, presiona **Finalizar** y empieza a explorar tu base de datos desde la interfaz gráfica.
+
+> ⚠️ Asegúrate de tener corriendo tu contenedor PostgreSQL con: 
+docker-compose up
+
+
 ## 📋 Cómo probar en Postman
 
 1. Asegúrate de tener corriendo tu backend (`./gradlew bootRun`) y PostgreSQL en Docker.
