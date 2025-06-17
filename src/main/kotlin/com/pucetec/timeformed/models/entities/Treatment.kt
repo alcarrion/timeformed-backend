@@ -6,10 +6,10 @@ import jakarta.persistence.ManyToOne
 
 @Entity(name = "treatments")
 data class Treatment(
-    val name: String,
-    val description: String,
+    var name: String,
+    var description: String,
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    val user: User
+    var user: User
 ) : BaseEntity()

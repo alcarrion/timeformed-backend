@@ -6,13 +6,13 @@ import jakarta.persistence.*
 @Table(name = "treatment_meds")
 data class TreatmentMed(
     @ManyToOne @JoinColumn(name = "treatment_id")
-    val treatment: Treatment,
+    var treatment: Treatment,
 
     @ManyToOne @JoinColumn(name = "med_id")
-    val med: Med,
+    var med: Med,
 
-    val dose: String,
-    val frequencyHours: Int,
-    val durationDays: Int,
-    val startHour: String
+    var dose: String,
+    var frequencyHours: Int,
+    var durationDays: Int,
+    var startHour: String
 ) : BaseEntity()

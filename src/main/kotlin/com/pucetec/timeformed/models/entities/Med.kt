@@ -6,6 +6,6 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "meds")
 data class Med(
-    val name: String,
-    val description: String
+    var name: String,
+    var description: String
 ) : BaseEntity()
