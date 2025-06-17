@@ -28,6 +28,17 @@ class MedService(
             }
         )
 
+    fun update(id: Long, request: MedRequest): MedResponse {
+        val med = medRepository.findById(id).orElseThrow {
+            ResourceNotFoundException("No se puede actualizar: medicina con ID $id no existe")
+        }
+
+        med.name = request.name
+        med.description = request.description
+
+        return medMapper.toResponse(medRepository.save(med))
+    }
+
     fun delete(id: Long) {
         val med = medRepository.findById(id).orElseThrow {
             ResourceNotFoundException("No se puede eliminar: medicina con ID $id no existe")

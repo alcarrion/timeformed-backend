@@ -21,13 +21,16 @@ class UserService(
         if (userRepository.existsByEmail(request.email)) {
             throw EmailAlreadyExistsException(request.email)
         }
+
         val hashedPassword = passwordEncoder.encode(request.password)
+
         val user = User(
             name = request.name,
             email = request.email,
             password = hashedPassword,
             age = request.age
         )
+
         return userMapper.toResponse(userRepository.save(user))
     }
 
@@ -36,11 +39,32 @@ class UserService(
 
     fun findById(id: Long): UserResponse =
         userMapper.toResponse(
-            userRepository.findById(id).orElseThrow { UserNotFoundException(id) }
+            userRepository.findById(id).orElseThrow {
+                UserNotFoundException(id)
+            }
         )
 
+    fun update(id: Long, request: UserRequest): UserResponse {
+        val user = userRepository.findById(id).orElseThrow {
+            UserNotFoundException(id)
+        }
+
+        user.name = request.name
+        user.email = request.email
+        user.age = request.age
+
+        if (!request.password.isNullOrBlank()) {
+            user.password = passwordEncoder.encode(request.password)
+        }
+
+        return userMapper.toResponse(userRepository.save(user))
+    }
+
     fun delete(id: Long) {
-        val user = userRepository.findById(id).orElseThrow { UserNotFoundException(id) }
+        val user = userRepository.findById(id).orElseThrow {
+            UserNotFoundException(id)
+        }
+
         userRepository.delete(user)
     }
 }

@@ -33,6 +33,20 @@ class TreatmentService(
                 .orElseThrow { TreatmentNotFoundException(id) }
         )
 
+    fun update(id: Long, request: TreatmentRequest): TreatmentResponse {
+        val treatment = treatmentRepository.findById(id)
+            .orElseThrow { TreatmentNotFoundException(id) }
+
+        val user = userRepository.findById(request.userId)
+            .orElseThrow { UserNotFoundException(request.userId) }
+
+        treatment.name = request.name
+        treatment.description = request.description
+        treatment.user = user
+
+        return treatmentMapper.toResponse(treatmentRepository.save(treatment))
+    }
+
     fun delete(id: Long) {
         val treatment = treatmentRepository.findById(id)
             .orElseThrow { TreatmentNotFoundException(id) }
