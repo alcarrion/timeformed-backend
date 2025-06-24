@@ -19,7 +19,7 @@ class MedService(
     }
 
     fun findAll(): List<MedResponse> =
-        medRepository.findAll().map { medMapper.toResponse(it) }
+        medMapper.toResponseList(medRepository.findAll())
 
     fun findById(id: Long): MedResponse =
         medMapper.toResponse(

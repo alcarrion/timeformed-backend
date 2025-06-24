@@ -7,7 +7,7 @@ import com.pucetec.timeformed.models.responses.TreatmentResponse
 import org.springframework.stereotype.Component
 
 @Component
-class TreatmentMapper {
+class TreatmentMapper : BaseMapper<Treatment, TreatmentResponse> {
 
     fun toEntity(request: TreatmentRequest, user: User): Treatment =
         Treatment(
@@ -16,14 +16,11 @@ class TreatmentMapper {
             user = user
         )
 
-    fun toResponse(entity: Treatment): TreatmentResponse =
+    override fun toResponse(entity: Treatment): TreatmentResponse =
         TreatmentResponse(
             id = entity.id,
             name = entity.name,
             description = entity.description,
             userId = entity.user.id
         )
-
-    fun toResponseList(entities: List<Treatment>): List<TreatmentResponse> =
-        entities.map { toResponse(it) }
 }

@@ -6,14 +6,15 @@ import com.pucetec.timeformed.models.responses.MedResponse
 import org.springframework.stereotype.Component
 
 @Component
-class MedMapper {
+class MedMapper : BaseMapper<Med, MedResponse> {
+
     fun toEntity(request: MedRequest): Med =
         Med(
             name = request.name,
             description = request.description
         )
 
-    fun toResponse(entity: Med): MedResponse =
+    override fun toResponse(entity: Med): MedResponse =
         MedResponse(
             id = entity.id,
             name = entity.name,

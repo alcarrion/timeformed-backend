@@ -16,7 +16,7 @@ class TreatmentMedService(
     private val treatmentMedRepository: TreatmentMedRepository,
     private val treatmentRepository: TreatmentRepository,
     private val medRepository: MedRepository,
-    private val mapper: TreatmentMedMapper
+    private val treatmentMedMapper: TreatmentMedMapper
 ) {
 
     fun create(request: TreatmentMedRequest): TreatmentMedResponse {
@@ -26,15 +26,15 @@ class TreatmentMedService(
         val med = medRepository.findById(request.medId)
             .orElseThrow { MedNotFoundException(request.medId) }
 
-        val treatmentMed = mapper.toEntity(request, treatment, med)
-        return mapper.toResponse(treatmentMedRepository.save(treatmentMed))
+        val treatmentMed = treatmentMedMapper.toEntity(request, treatment, med)
+        return treatmentMedMapper.toResponse(treatmentMedRepository.save(treatmentMed))
     }
 
     fun findAll(): List<TreatmentMedResponse> =
-        mapper.toResponseList(treatmentMedRepository.findAll())
+        treatmentMedMapper.toResponseList(treatmentMedRepository.findAll())
 
     fun findById(id: Long): TreatmentMedResponse =
-        mapper.toResponse(
+        treatmentMedMapper.toResponse(
             treatmentMedRepository.findById(id)
                 .orElseThrow { TreatmentMedNotFoundException(id) }
         )
@@ -56,7 +56,7 @@ class TreatmentMedService(
         treatmentMed.durationDays = request.durationDays
         treatmentMed.startHour = request.startHour
 
-        return mapper.toResponse(treatmentMedRepository.save(treatmentMed))
+        return treatmentMedMapper.toResponse(treatmentMedRepository.save(treatmentMed))
     }
 
     fun delete(id: Long) {

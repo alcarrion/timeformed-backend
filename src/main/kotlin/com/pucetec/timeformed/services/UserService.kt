@@ -7,13 +7,11 @@ import com.pucetec.timeformed.models.requests.UserRequest
 import com.pucetec.timeformed.models.responses.UserResponse
 import com.pucetec.timeformed.repositories.UserRepository
 import com.pucetec.timeformed.mappers.UserMapper
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder,
     private val userMapper: UserMapper
 ) {
 
@@ -22,12 +20,11 @@ class UserService(
             throw EmailAlreadyExistsException(request.email)
         }
 
-        val hashedPassword = passwordEncoder.encode(request.password)
+
 
         val user = User(
             name = request.name,
             email = request.email,
-            password = hashedPassword,
             age = request.age
         )
 
@@ -35,7 +32,7 @@ class UserService(
     }
 
     fun findAll(): List<UserResponse> =
-        userRepository.findAll().map { userMapper.toResponse(it) }
+        userMapper.toResponseList(userRepository.findAll())
 
     fun findById(id: Long): UserResponse =
         userMapper.toResponse(
@@ -53,9 +50,6 @@ class UserService(
         user.email = request.email
         user.age = request.age
 
-        if (!request.password.isNullOrBlank()) {
-            user.password = passwordEncoder.encode(request.password)
-        }
 
         return userMapper.toResponse(userRepository.save(user))
     }
