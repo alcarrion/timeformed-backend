@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "http://localhost:8080/api/timeformed/users",
+			"name": "Agregar Usuario",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -52,7 +52,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/users",
+			"name": "Agregar Usuario",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -85,7 +85,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/users/1",
+			"name": "Modificar usuario",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -94,7 +94,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Alejandro Barrionuevo\",\r\n  \"email\": \"Alejandrob@example.com\",\r\n  \"age\": 21\r\n}\r\n",
+					"raw": "{\r\n  \"name\": \"Alejo Barrionuevo\",\r\n  \"email\": \"Apbarrionuevo@puce.com\",\r\n  \"age\": 21\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -119,7 +119,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/users/1",
+			"name": "Listar Usuario",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -151,7 +151,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/users",
+			"name": "Listar usuarios",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -182,7 +182,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/users/1",
+			"name": "Eliminar Usuario",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -191,7 +191,12 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "\r\n"
+					"raw": "\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/timeformed/users/1",
@@ -211,7 +216,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/meds",
+			"name": "Agrego Medicina",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -220,7 +225,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antiinflamatorio\"\r\n}\r\n",
+					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antiinflamatorio\",\r\n  \"userId\": 2\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -244,7 +249,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/meds",
+			"name": "Agregar Medicamento",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -253,7 +258,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Paracetamol\",\r\n  \"description\": \"Para el dolor y fiebre\"\r\n}",
+					"raw": "{\r\n  \"name\": \"Paracetamol\",\r\n  \"description\": \"Para el dolor y fiebre\",\r\n  \"userId\": 2\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -277,7 +282,156 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatments",
+			"name": "Listar por medicina",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antinflamatorio\",\r\n  \"userId\": 2\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/timeformed/meds/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"timeformed",
+						"meds",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar Medicina",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido\",\r\n  \"userId\": 2\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/timeformed/meds/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"timeformed",
+						"meds",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar medicina por usuario",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/timeformed/meds/by-user/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"timeformed",
+						"meds",
+						"by-user",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar medicinas",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antinflamatorio\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/timeformed/meds",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"timeformed",
+						"meds"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar medicina",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antinflamatorio\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/timeformed/meds/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"timeformed",
+						"meds",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Agregar Tratamiento",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -307,133 +461,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/meds/1",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antinflamatorio.\"\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/api/timeformed/meds/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"timeformed",
-						"meds",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/api/timeformed/meds/1",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antinflamatorio\"\r\n}\r\n"
-				},
-				"url": {
-					"raw": "http://localhost:8080/api/timeformed/meds/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"timeformed",
-						"meds",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/api/timeformed/meds",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antinflamatorio\"\r\n}\r\n"
-				},
-				"url": {
-					"raw": "http://localhost:8080/api/timeformed/meds",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"timeformed",
-						"meds"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/api/timeformed/meds/1",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Omeprazol\",\r\n  \"description\": \"Antiacido y antinflamatorio\"\r\n}\r\n"
-				},
-				"url": {
-					"raw": "http://localhost:8080/api/timeformed/meds/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"timeformed",
-						"meds",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/api/timeformed/treatments",
+			"name": "Agregar tratamiento",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -442,7 +470,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Tratamiento para la gripe\",\r\n  \"description\": \"Tratamiento intensivo durante 7 días\",\r\n  \"userId\": 2\r\n}\r\n",
+					"raw": "{\r\n  \"name\": \"Tratamiento para la tos\",\r\n  \"description\": \"Tratamiento intensivo durante 7 días\",\r\n  \"userId\": 2\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -466,13 +494,13 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatments",
+			"name": "Agregar Tratamiento",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Tratamiento para la gripe\",\r\n  \"description\": \"Tratamiento intensivo durante 7 días\",\r\n  \"userId\": 2\r\n}\r\n",
+					"raw": "{\r\n  \"name\": \"Tratamiento para el dolor de estomago\",\r\n  \"description\": \"Tratamiento intensivo durante 10 días\",\r\n  \"userId\": 2\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -496,7 +524,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatments/2",
+			"name": "Modificar tratamiento",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -530,7 +558,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatments/2",
+			"name": "Listar por tratamiento",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -562,7 +590,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatments",
+			"name": "Listar tratamientos",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -593,7 +621,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatments/2",
+			"name": "Eliminar tratamiento",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -622,7 +650,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatment-meds",
+			"name": "Agregar tratamiento-medicina",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -631,7 +659,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"treatmentId\": 2,\r\n  \"medId\": 2,\r\n  \"dose\": \"500mg\",\r\n  \"frequencyHours\": 8,\r\n  \"durationDays\": 5,\r\n  \"startHour\": \"08:00\"\r\n}\r\n\r\n",
+					"raw": "{\r\n  \"treatmentId\": 2,\r\n  \"medId\": 2,\r\n  \"dose\": \"500 mg\",\r\n  \"frequencyHours\": 8,\r\n  \"durationDays\": 5,\r\n  \"startHour\": \"08:00\"\r\n}\r\n\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -655,7 +683,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatment-meds",
+			"name": "Agregar tratamiento-medicina",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -688,7 +716,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatment-meds/1",
+			"name": "Modificar tratamiento-medicina",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -697,7 +725,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"treatmentId\": 2,\r\n  \"medId\": 2,\r\n  \"dose\": \"700mg\",\r\n  \"frequencyHours\": 8,\r\n  \"durationDays\": 9,\r\n  \"startHour\": \"08:00\"\r\n}\r\n\r\n",
+					"raw": "{\r\n  \"treatmentId\": 2,\r\n  \"medId\": 2,\r\n  \"dose\": \"100 mg\",\r\n  \"frequencyHours\": 8,\r\n  \"durationDays\": 9,\r\n  \"startHour\": \"08:00\"\r\n}\r\n\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -722,7 +750,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatment-meds/1",
+			"name": "Listar por tratamiento-medicina",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -754,7 +782,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatment-meds",
+			"name": "Listar tratamientos-medicinas",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -785,7 +813,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/treatment-meds/1",
+			"name": "Eliminar tratamiento-medicina",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -814,7 +842,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/takes",
+			"name": "Agregar toma",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -847,7 +875,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/takes/1",
+			"name": "Modificar toma",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -881,7 +909,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/takes/1",
+			"name": "Listar por toma",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -893,7 +921,12 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"treatmentMedId\": 2,\r\n  \"scheduledDateTime\": \"2025-06-17T08:00:00\",\r\n  \"takenDateTime\": \"2025-06-17T08:02:00\",\r\n  \"wasTaken\": false\r\n}\r\n"
+					"raw": "{\r\n  \"treatmentMedId\": 2,\r\n  \"scheduledDateTime\": \"2025-06-17T08:00:00\",\r\n  \"takenDateTime\": \"2025-06-17T08:02:00\",\r\n  \"wasTaken\": false\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/timeformed/takes/1",
@@ -913,7 +946,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/takes",
+			"name": "Listar tomas",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -944,7 +977,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/api/timeformed/takes/1",
+			"name": "Eliminar toma",
 			"request": {
 				"auth": {
 					"type": "noauth"
