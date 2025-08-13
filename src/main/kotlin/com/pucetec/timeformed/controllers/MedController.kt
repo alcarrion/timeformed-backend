@@ -31,4 +31,9 @@ class MedController(private val medService: MedService) {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable id: Long) =
         medService.delete(id)
+
+
+    @GetMapping("/by-user/{userId}")
+    fun getAllByUser(@PathVariable userId: Long): List<MedResponse> =
+        medService.findAllByUser(userId)
 }

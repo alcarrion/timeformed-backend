@@ -1,3 +1,4 @@
+
 package com.pucetec.timeformed.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -51,7 +52,7 @@ class TreatmentMedControllerTest {
 
     private val response = TreatmentMedResponse(
         id = 1,
-        med = MedResponse(id = 1, name = "Paracetamol", description = "Pain reliever"),
+        med = MedResponse(id = 1, name = "Paracetamol", description = "Pain reliever", userId = 1L),
         dose = "1 tablet",
         frequencyHours = 8,
         durationDays = 5,

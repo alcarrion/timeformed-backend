@@ -29,6 +29,14 @@ class GlobalExceptionHandler {
     fun handleGeneric(ex: Exception): ResponseEntity<Map<String, String>> =
         ResponseEntity(mapOf("error" to "Unexpected error: ${ex.message}"), HttpStatus.INTERNAL_SERVER_ERROR)
 
+    @ExceptionHandler(MedAlreadyExistsException::class)
+    fun handleMedAlreadyExists(ex: MedAlreadyExistsException) =
+        ResponseEntity(mapOf("error" to ex.message.orEmpty()), HttpStatus.CONFLICT)
+
+    @ExceptionHandler(ForbiddenOperationException::class)
+    fun handleForbiddenOperation(ex: ForbiddenOperationException): ResponseEntity<Map<String, String>> =
+        ResponseEntity(mapOf("error" to ex.message.orEmpty()), HttpStatus.FORBIDDEN)
+
     @ExceptionHandler(TreatmentMedNotFoundException::class)
     fun handleTreatmentMedNotFound(ex: TreatmentMedNotFoundException): ResponseEntity<Map<String, String>> =
         ResponseEntity(mapOf("error" to ex.message.orEmpty()), HttpStatus.NOT_FOUND)
