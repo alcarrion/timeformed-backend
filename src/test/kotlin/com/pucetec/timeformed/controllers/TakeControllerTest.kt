@@ -1,9 +1,11 @@
 package com.pucetec.timeformed.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.pucetec.timeformed.exceptions.exceptions.ResourceNotFoundException
+import com.pucetec.timeformed.models.requests.TakeRequest
 import com.pucetec.timeformed.models.responses.TakeResponse
 import com.pucetec.timeformed.services.TakeService
 import org.junit.jupiter.api.BeforeEach
@@ -24,67 +26,81 @@ import java.time.LocalDateTime
 @Import(TakeControllerTest.MockTakeConfig::class)
 class TakeControllerTest {
 
-    @Autowired
-    lateinit var mockMvc: MockMvc
+    @Autowired lateinit var mockMvc: MockMvc
+    @Autowired lateinit var takeService: TakeService
 
-    @Autowired
-    lateinit var takeService: TakeService
-
-    lateinit var objectMapper: ObjectMapper
+    private lateinit var mapper: ObjectMapper
 
     @BeforeEach
     fun setup() {
-        objectMapper = ObjectMapper()
+        mapper = ObjectMapper()
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
     }
 
-    private val response = TakeResponse(
-        id = 1,
-        scheduledDateTime = LocalDateTime.of(2025, 7, 6, 8, 0),
-        takenDateTime = LocalDateTime.of(2025, 7, 6, 8, 30),
+    private fun req() = TakeRequest(
+        treatmentMedId = 1,
+        scheduledDateTime = LocalDateTime.parse("2025-07-06T08:00:00"),
+        takenDateTime = LocalDateTime.parse("2025-07-06T08:30:00"),
         wasTaken = true
     )
 
-    private val requestJson = """
-        {
-            "treatmentMedId": 1,
-            "scheduledDateTime": "2025-07-06T08:00:00",
-            "takenDateTime": "2025-07-06T08:30:00",
-            "wasTaken": true
-        }
-    """.trimIndent()
+    private val res = TakeResponse(
+        id = 1,
+        scheduledDateTime = LocalDateTime.parse("2025-07-06T08:00:00"),
+        takenDateTime = LocalDateTime.parse("2025-07-06T08:30:00"),
+        wasTaken = true,
+        treatmentMedId = 1,
+        medicamentName = "Paracetamol",
+        dose = "500 mg"
+    )
 
     @Test
     fun create_returns_created() {
-        whenever(takeService.create(any())).thenReturn(response)
+        whenever(takeService.create(any())).thenReturn(res)
 
         mockMvc.perform(
             post("/api/timeformed/takes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(requestJson)
+                .content(mapper.writeValueAsString(req()))
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.scheduled_date_time").value("2025-07-06T08:00:00"))
+            .andExpect(jsonPath("$.taken_date_time").value("2025-07-06T08:30:00"))
+            .andExpect(jsonPath("$.was_taken").value(true))
+            .andExpect(jsonPath("$.treatment_med_id").value(1))
+            .andExpect(jsonPath("$.medicament_name").value("Paracetamol"))
+            .andExpect(jsonPath("$.dose").value("500 mg"))
     }
 
     @Test
     fun get_all_returns_ok() {
-        whenever(takeService.findAll()).thenReturn(listOf(response))
+        whenever(takeService.findAll()).thenReturn(listOf(res))
 
         mockMvc.perform(get("/api/timeformed/takes"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].scheduled_date_time").value("2025-07-06T08:00:00"))
+            .andExpect(jsonPath("$[0].was_taken").value(true))
+            .andExpect(jsonPath("$[0].medicament_name").value("Paracetamol"))
+            .andExpect(jsonPath("$[0].dose").value("500 mg"))
     }
 
     @Test
     fun get_by_id_returns_ok() {
-        whenever(takeService.findById(1)).thenReturn(response)
+        whenever(takeService.findById(1)).thenReturn(res)
 
         mockMvc.perform(get("/api/timeformed/takes/1"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.scheduled_date_time").value("2025-07-06T08:00:00"))
+            .andExpect(jsonPath("$.taken_date_time").value("2025-07-06T08:30:00"))
+            .andExpect(jsonPath("$.was_taken").value(true))
+            .andExpect(jsonPath("$.medicament_name").value("Paracetamol"))
+            .andExpect(jsonPath("$.dose").value("500 mg"))
     }
 
     @Test
@@ -99,25 +115,32 @@ class TakeControllerTest {
 
     @Test
     fun get_by_treatment_med_returns_ok() {
-        whenever(takeService.findByTreatmentMedId(1)).thenReturn(listOf(response))
+        whenever(takeService.findByTreatmentMedId(1)).thenReturn(listOf(res))
 
         mockMvc.perform(get("/api/timeformed/takes/treatment-med/1"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].taken_date_time").value("2025-07-06T08:30:00"))
+            .andExpect(jsonPath("$[0].medicament_name").value("Paracetamol"))
     }
 
     @Test
     fun update_returns_ok() {
-        whenever(takeService.update(eq(1), any())).thenReturn(response)
+        whenever(takeService.update(eq(1), any())).thenReturn(res)
 
         mockMvc.perform(
             put("/api/timeformed/takes/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(requestJson)
+                .content(mapper.writeValueAsString(req()))
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.scheduled_date_time").value("2025-07-06T08:00:00"))
+            .andExpect(jsonPath("$.taken_date_time").value("2025-07-06T08:30:00"))
+            .andExpect(jsonPath("$.was_taken").value(true))
+            .andExpect(jsonPath("$.medicament_name").value("Paracetamol"))
+            .andExpect(jsonPath("$.dose").value("500 mg"))
     }
 
     @Test
@@ -128,7 +151,7 @@ class TakeControllerTest {
         mockMvc.perform(
             put("/api/timeformed/takes/999")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(requestJson)
+                .content(mapper.writeValueAsString(req()))
         )
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.error").value("No se encontró el registro con ID 999"))
@@ -152,9 +175,31 @@ class TakeControllerTest {
             .andExpect(jsonPath("$.error").value("No se puede eliminar: registro con ID 999 no encontrado"))
     }
 
+    @Test
+    fun get_by_user_returns_ok() {
+        whenever(takeService.findByUserId(1)).thenReturn(listOf(res))
+
+        mockMvc.perform(get("/api/timeformed/takes/user/1"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].scheduled_date_time").value("2025-07-06T08:00:00"))
+            .andExpect(jsonPath("$[0].was_taken").value(true))
+            .andExpect(jsonPath("$[0].medicament_name").value("Paracetamol"))
+            .andExpect(jsonPath("$[0].dose").value("500 mg"))
+    }
+
+    @Test
+    fun get_by_user_returns_empty_list() {
+        whenever(takeService.findByUserId(2)).thenReturn(emptyList())
+
+        mockMvc.perform(get("/api/timeformed/takes/user/2"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(0))
+    }
+
     @TestConfiguration
     class MockTakeConfig {
-        @Bean
-        fun takeService(): TakeService = mock()
+        @Bean fun takeService(): TakeService = mock()
     }
 }

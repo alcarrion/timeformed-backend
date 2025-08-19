@@ -26,6 +26,7 @@ class TreatmentMedMapper(
     fun toResponse(entity: TreatmentMed): TreatmentMedResponse {
         return TreatmentMedResponse(
             id = entity.id,
+            treatmentId = entity.treatment.id,
             med = medMapper.toResponse(entity.med),
             dose = entity.dose,
             frequencyHours = entity.frequencyHours,

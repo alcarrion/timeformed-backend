@@ -7,6 +7,7 @@ import com.pucetec.timeformed.mappers.TreatmentMedMapper
 import com.pucetec.timeformed.models.entities.*
 import com.pucetec.timeformed.models.requests.TreatmentMedRequest
 import com.pucetec.timeformed.models.responses.TreatmentMedResponse
+import com.pucetec.timeformed.models.responses.MedResponse
 import com.pucetec.timeformed.repositories.MedRepository
 import com.pucetec.timeformed.repositories.TreatmentMedRepository
 import com.pucetec.timeformed.repositories.TreatmentRepository
@@ -48,7 +49,8 @@ class TreatmentMedServiceTest {
         val treatment = Treatment("Fiebre", "Alta temperatura", user)
         val med = Med("Paracetamol", "500mg", user )
         val treatmentMed = TreatmentMed(treatment, med, "1 tableta", 8, 5, "08:00")
-        val response = TreatmentMedResponse(1L, mock(), "1 tableta", 8, 5, "08:00")
+        val medResponse = MedResponse(2L, "Paracetamol", "500mg", 1L)  // ✅ CREAR MedResponse real
+        val response = TreatmentMedResponse(1L, 1L, medResponse, "1 tableta", 8, 5, "08:00")  // ✅ AGREGAR treatmentId
 
         `when`(treatmentRepository.findById(1L)).thenReturn(Optional.of(treatment))
         `when`(medRepository.findById(2L)).thenReturn(Optional.of(med))
@@ -71,7 +73,8 @@ class TreatmentMedServiceTest {
         val med = Med("Paracetamol", "Calma fiebre", user)
         val treatment = Treatment("Gripe", "Común", user)
         val treatmentMed = TreatmentMed(treatment, med, "1 tableta", 8, 5, "08:00")
-        val response = TreatmentMedResponse(1L, mock(), "1 tableta", 8, 5, "08:00")
+        val medResponse = MedResponse(1L, "Paracetamol", "Calma fiebre", 1L)  // ✅ CREAR MedResponse real
+        val response = TreatmentMedResponse(1L, 1L, medResponse, "1 tableta", 8, 5, "08:00")  // ✅ AGREGAR treatmentId
 
         `when`(treatmentMedRepository.findAll()).thenReturn(listOf(treatmentMed))
         `when`(treatmentMedMapper.toResponseList(listOf(treatmentMed))).thenReturn(listOf(response))
@@ -89,7 +92,8 @@ class TreatmentMedServiceTest {
         val treatment = Treatment("Dolor", "Dolor muscular", user)
         val med = Med("Ibuprofeno", "200mg", user)
         val treatmentMed = TreatmentMed(treatment, med, "1 tableta", 6, 7, "07:00").apply { id = 3L }
-        val response = TreatmentMedResponse(3L, mock(), "1 tableta", 6, 7, "07:00")
+        val medResponse = MedResponse(1L, "Ibuprofeno", "200mg", 1L)  // ✅ CREAR MedResponse real
+        val response = TreatmentMedResponse(3L, 1L, medResponse, "1 tableta", 6, 7, "07:00")  // ✅ AGREGAR treatmentId
 
         `when`(treatmentMedRepository.findById(3L)).thenReturn(Optional.of(treatmentMed))
         `when`(treatmentMedMapper.toResponse(treatmentMed)).thenReturn(response)
@@ -153,9 +157,11 @@ class TreatmentMedServiceTest {
             startHour = request.startHour
         )
 
+        val medResponse = MedResponse(2L, "Paracetamol", "500mg cada 8h", 1L)  // ✅ CREAR MedResponse real
         val response = TreatmentMedResponse(
             id = 1L,
-            med = mock(),
+            treatmentId = 1L,  // ✅ AGREGAR treatmentId
+            med = medResponse,  // ✅ USAR MedResponse real
             dose = request.dose,
             frequencyHours = request.frequencyHours,
             durationDays = request.durationDays,

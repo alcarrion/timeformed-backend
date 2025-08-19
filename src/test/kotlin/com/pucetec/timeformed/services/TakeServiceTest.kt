@@ -35,7 +35,7 @@ class TakeServiceTest {
         val request = TakeRequest(1L, now, null, false)
         val treatmentMed = mock(TreatmentMed::class.java)
         val take = Take(treatmentMed, now, null, false)
-        val response = TakeResponse(1L, now, null, false)
+        val response = TakeResponse(1L, now, null, false, 1L, "Paracetamol", "500 mg")
 
         `when`(treatmentMedRepository.findById(1L)).thenReturn(Optional.of(treatmentMed))
         `when`(takeMapper.toEntity(request, treatmentMed)).thenReturn(take)
@@ -81,7 +81,7 @@ class TakeServiceTest {
     fun should_get_takes_by_treatmentMedId() {
         val treatmentMed = TreatmentMed(mock(), mock(), "1 tableta", 8, 5, "08:00").apply { id = 1L }
         val take = Take(treatmentMed, LocalDateTime.now(), null, false).apply { id = 1L }
-        val response = TakeResponse(1L, take.scheduledDateTime, null, false)
+        val response = TakeResponse(1L, take.scheduledDateTime, null, false, 1L, "Paracetamol", "500 mg")
 
         `when`(takeRepository.findAll()).thenReturn(listOf(take))
         `when`(takeMapper.toResponseList(listOf(take))).thenReturn(listOf(response))
@@ -126,7 +126,7 @@ class TakeServiceTest {
         val treatmentMed = mock(TreatmentMed::class.java)
         val take = Take(treatmentMed, now, null, false).apply { id = 5L }
         val updated = take.copy(takenDateTime = now.plusHours(1), wasTaken = true)
-        val response = TakeResponse(5L, now, now.plusHours(1), true)
+        val response = TakeResponse(5L, now, now.plusHours(1), true, 1L, "Paracetamol", "500 mg")
 
         `when`(takeRepository.findById(5L)).thenReturn(Optional.of(take))
         `when`(treatmentMedRepository.findById(1L)).thenReturn(Optional.of(treatmentMed))
@@ -182,6 +182,44 @@ class TakeServiceTest {
     }
 
     @Test
+    fun should_get_takes_by_user_id() {
+        val user = User("Test User", "test@email.com", 30).apply { id = 1L }
+        val treatment = Treatment("Test Treatment", "Test", user).apply { id = 1L }
+        val med = Med("Test Med", "Test", user).apply { id = 1L }
+        val treatmentMed = TreatmentMed(treatment, med, "500mg", 8, 7, "08:00").apply { id = 1L }
+        val take = Take(treatmentMed, LocalDateTime.now(), null, false).apply { id = 1L }
+        val response = TakeResponse(1L, take.scheduledDateTime, null, false, 1L, "Paracetamol", "500 mg")
+
+        `when`(takeRepository.findAll()).thenReturn(listOf(take))
+        `when`(takeMapper.toResponseList(listOf(take))).thenReturn(listOf(response))
+
+        val result = service.findByUserId(1L)
+
+        assertEquals(1, result.size)
+        assertEquals(response, result[0])
+        verify(takeRepository).findAll()
+        verify(takeMapper).toResponseList(listOf(take))
+    }
+
+    @Test
+    fun should_return_empty_list_when_user_has_no_takes() {
+        val otherUser = User("Other User", "other@email.com", 25).apply { id = 999L }
+        val treatment = Treatment("Test Treatment", "Test", otherUser).apply { id = 1L }
+        val med = Med("Test Med", "Test", otherUser).apply { id = 1L }
+        val treatmentMed = TreatmentMed(treatment, med, "500mg", 8, 7, "08:00").apply { id = 1L }
+        val take = Take(treatmentMed, LocalDateTime.now(), null, false).apply { id = 1L }
+
+        `when`(takeRepository.findAll()).thenReturn(listOf(take))
+        `when`(takeMapper.toResponseList(emptyList())).thenReturn(emptyList())
+
+        val result = service.findByUserId(1L)
+
+        assertEquals(0, result.size)
+        verify(takeRepository).findAll()
+        verify(takeMapper).toResponseList(emptyList())
+    }
+
+    @Test
     fun should_throw_exception_when_deleting_nonexistent_take() {
         `when`(takeRepository.findById(99L)).thenReturn(Optional.empty())
 
@@ -191,5 +229,4 @@ class TakeServiceTest {
 
         verify(takeRepository).findById(99L)
     }
-
 }

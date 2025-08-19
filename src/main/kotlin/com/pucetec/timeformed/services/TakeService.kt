@@ -58,6 +58,15 @@ class TakeService(
         return takeMapper.toResponse(takeRepository.save(take))
     }
 
+
+    fun findByUserId(userId: Long): List<TakeResponse> {
+        val takes = takeRepository.findAll()
+            .filter { take ->
+                take.treatmentMed.treatment.user.id == userId
+            }
+        return takeMapper.toResponseList(takes)
+    }
+
     fun delete(id: Long) {
         val take = takeRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("No se puede eliminar: registro con ID $id no encontrado") }

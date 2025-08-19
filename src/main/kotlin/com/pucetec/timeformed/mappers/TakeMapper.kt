@@ -22,6 +22,9 @@ class TakeMapper : BaseMapper<Take, TakeResponse> {
             id = entity.id,
             scheduledDateTime = entity.scheduledDateTime,
             takenDateTime = entity.takenDateTime,
-            wasTaken = entity.wasTaken
+            wasTaken = entity.wasTaken,
+            treatmentMedId = entity.treatmentMed.id,
+            medicamentName = entity.treatmentMed.med.name,
+            dose = entity.treatmentMed.dose
         )
 }

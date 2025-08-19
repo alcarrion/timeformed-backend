@@ -12,7 +12,9 @@ import com.pucetec.timeformed.routes.Routes
 import com.pucetec.timeformed.services.MedService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.doNothing
+import org.mockito.kotlin.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -20,10 +22,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.assertEquals
 
 @WebMvcTest(MedController::class)
@@ -44,7 +48,7 @@ class MedControllerTest {
         objectMapper = ObjectMapper()
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
     }
 
     @Test
@@ -52,7 +56,7 @@ class MedControllerTest {
         val request = MedRequest("Paracetamol", "Para el dolor", 1L)
         val response = MedResponse(1L, "Paracetamol", "Para el dolor", 1L)
 
-        `when`(medService.create(request)).thenReturn(response)
+        `when`(medService.create(eq(request))).thenReturn(response)
 
         val json = objectMapper.writeValueAsString(request)
 
@@ -65,7 +69,7 @@ class MedControllerTest {
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.name").value("Paracetamol"))
             .andExpect(jsonPath("$.description").value("Para el dolor"))
-            .andExpect(jsonPath("$.userId").value(1))
+            .andExpect(jsonPath("$.user_id").value(1))
             .andReturn()
 
         assertEquals(201, result.response.status)
@@ -100,7 +104,7 @@ class MedControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name").value("Paracetamol"))
             .andExpect(jsonPath("$.description").value("Para el dolor"))
-            .andExpect(jsonPath("$.userId").value(1))
+            .andExpect(jsonPath("$.user_id").value(1))
             .andReturn()
 
         assertEquals(200, result.response.status)
@@ -124,7 +128,7 @@ class MedControllerTest {
         val request = MedRequest("Actualizado", "Nuevo tratamiento", 1L)
         val response = MedResponse(1L, request.name, request.description, 1L)
 
-        `when`(medService.update(1L, request)).thenReturn(response)
+        `when`(medService.update(eq(1L), eq(request))).thenReturn(response)
 
         val json = objectMapper.writeValueAsString(request)
 
@@ -136,7 +140,7 @@ class MedControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name").value("Actualizado"))
             .andExpect(jsonPath("$.description").value("Nuevo tratamiento"))
-            .andExpect(jsonPath("$.userId").value(1))
+            .andExpect(jsonPath("$.user_id").value(1)) // 👈 snake_case
             .andReturn()
 
         assertEquals(200, result.response.status)
@@ -166,7 +170,7 @@ class MedControllerTest {
         val result = mockMvc.perform(get("$baseUrl/by-user/$userId"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(2))
-            .andExpect(jsonPath("$[0].userId").value(2))
+            .andExpect(jsonPath("$[0].user_id").value(2))
             .andReturn()
 
         assertEquals(200, result.response.status)
@@ -179,21 +183,19 @@ class MedControllerTest {
         `when`(medService.findAllByUser(userId)).thenThrow(UserNotFoundException(userId))
 
         val result = mockMvc.perform(
-            MockMvcRequestBuilders.get("$baseUrl/by-user/$userId")
+            get("$baseUrl/by-user/$userId")
                 .contentType(MediaType.APPLICATION_JSON)
         )
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("Usuario con ID 999 no fue encontrado"))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.error").value("Usuario con ID 999 no fue encontrado"))
             .andReturn()
 
         assertEquals(404, result.response.status)
     }
 
-
-
     @TestConfiguration
     class MockMedConfig {
         @Bean
-        fun medService(): MedService = mock(MedService::class.java)
+        fun medService(): MedService = org.mockito.Mockito.mock(MedService::class.java)
     }
 }

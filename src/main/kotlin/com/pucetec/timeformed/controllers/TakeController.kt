@@ -38,4 +38,9 @@ class TakeController(
     fun delete(@PathVariable id: Long) {
         takeService.delete(id)
     }
+
+    @GetMapping("/user/{userId}")
+    fun getTakesByUser(@PathVariable userId: Long): List<TakeResponse> =
+        takeService.findByUserId(userId)
+
 }

@@ -20,7 +20,13 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.*
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
+import org.springframework.test.web.servlet.delete
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.assertEquals
 import org.mockito.Mockito.mock
 
@@ -42,7 +48,8 @@ class TreatmentControllerTest {
         objectMapper = ObjectMapper()
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
+            // 👇 para que los JSON del test salgan en snake_case
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
     }
 
     @Test
@@ -62,7 +69,7 @@ class TreatmentControllerTest {
             jsonPath("$.id") { value(1) }
             jsonPath("$.name") { value("Dolor cabeza") }
             jsonPath("$.description") { value("Paracetamol") }
-            jsonPath("$.userId") { value(1) }
+            jsonPath("$.user_id") { value(1) } // 👈 snake_case
         }.andReturn()
 
         assertEquals(201, result.response.status)
@@ -99,7 +106,7 @@ class TreatmentControllerTest {
                 status { isOk() }
                 jsonPath("$.name") { value("Gripe") }
                 jsonPath("$.description") { value("Ibuprofeno") }
-                jsonPath("$.userId") { value(1) }
+                jsonPath("$.user_id") { value(1) } // 👈 snake_case
             }.andReturn()
 
         assertEquals(200, result.response.status)
@@ -134,7 +141,7 @@ class TreatmentControllerTest {
             status { isOk() }
             jsonPath("$.name") { value("Actualizado") }
             jsonPath("$.description") { value("Nuevo desc") }
-            jsonPath("$.userId") { value(1) }
+            jsonPath("$.user_id") { value(1) } // 👈 snake_case
         }.andReturn()
 
         assertEquals(200, result.response.status)

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.pucetec.timeformed.exceptions.handlers.GlobalExceptionHandler
 import com.pucetec.timeformed.exceptions.exceptions.EmailAlreadyExistsException
 import com.pucetec.timeformed.exceptions.exceptions.InvalidRequestException
 import com.pucetec.timeformed.exceptions.exceptions.UserNotFoundException
@@ -25,16 +26,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(UserController::class)
-@Import(UserControllerTest.MockUserConfig::class)
+@Import(UserControllerTest.MockUserConfig::class, GlobalExceptionHandler::class) // 👈 carga el handler
 class UserControllerTest {
 
-    @Autowired
-    lateinit var mockMvc: MockMvc
+    @Autowired lateinit var mockMvc: MockMvc
+    @Autowired lateinit var userService: UserService
 
-    @Autowired
-    lateinit var userService: UserService
-
-    lateinit var objectMapper: ObjectMapper
+    private lateinit var objectMapper: ObjectMapper
 
     private val BASE_URL = Routes.BASE_PATH + Routes.USERS
 
@@ -43,7 +41,7 @@ class UserControllerTest {
         objectMapper = ObjectMapper()
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE) // consistente con el resto
     }
 
     private val request = UserRequest("Charlie", "charlie@example.com", 22)
@@ -57,6 +55,7 @@ class UserControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].name").value("Charlie"))
+            .andExpect(jsonPath("$[0].email").value("charlie@example.com"))
     }
 
     @Test
@@ -67,6 +66,7 @@ class UserControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name").value("Charlie"))
             .andExpect(jsonPath("$.email").value("charlie@example.com"))
+            .andExpect(jsonPath("$.age").value(22))
     }
 
     @Test
@@ -80,7 +80,7 @@ class UserControllerTest {
 
     @Test
     fun create_returns_created() {
-        whenever(userService.create(request)).thenReturn(response)
+        whenever(userService.create(eq(request))).thenReturn(response)
 
         mockMvc.perform(
             post(BASE_URL)
@@ -90,12 +90,14 @@ class UserControllerTest {
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.name").value("Charlie"))
+            .andExpect(jsonPath("$.email").value("charlie@example.com"))
     }
 
     @Test
     fun create_returns_conflict() {
         val conflictRequest = UserRequest("Charlie", "existing@example.com", 22)
-        whenever(userService.create(conflictRequest)).thenThrow(EmailAlreadyExistsException("existing@example.com"))
+        whenever(userService.create(eq(conflictRequest)))
+            .thenThrow(EmailAlreadyExistsException("existing@example.com"))
 
         mockMvc.perform(
             post(BASE_URL)
@@ -109,7 +111,8 @@ class UserControllerTest {
     @Test
     fun create_returns_bad_request() {
         val invalidRequest = UserRequest("Charlie", "invalid@example.com", 22)
-        whenever(userService.create(invalidRequest)).thenThrow(InvalidRequestException("Petición inválida"))
+        whenever(userService.create(eq(invalidRequest)))
+            .thenThrow(InvalidRequestException("Petición inválida"))
 
         mockMvc.perform(
             post(BASE_URL)
@@ -122,7 +125,7 @@ class UserControllerTest {
 
     @Test
     fun create_returns_internal_error() {
-        whenever(userService.create(request)).thenThrow(RuntimeException("Falla en el servidor"))
+        whenever(userService.create(eq(request))).thenThrow(RuntimeException("Falla en el servidor"))
 
         mockMvc.perform(
             post(BASE_URL)
@@ -138,7 +141,7 @@ class UserControllerTest {
         val updatedRequest = UserRequest("Updated", "updated@example.com", 28)
         val updatedResponse = UserResponse(1L, "Updated", "updated@example.com", 28)
 
-        whenever(userService.update(1L, updatedRequest)).thenReturn(updatedResponse)
+        whenever(userService.update(eq(1L), eq(updatedRequest))).thenReturn(updatedResponse)
 
         mockMvc.perform(
             put("$BASE_URL/1")
@@ -147,6 +150,8 @@ class UserControllerTest {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.email").value("updated@example.com"))
+            .andExpect(jsonPath("$.name").value("Updated"))
+            .andExpect(jsonPath("$.age").value(28))
     }
 
     @Test
@@ -168,7 +173,6 @@ class UserControllerTest {
 
     @TestConfiguration
     class MockUserConfig {
-        @Bean
-        fun userService(): UserService = mock()
+        @Bean fun userService(): UserService = mock()
     }
 }

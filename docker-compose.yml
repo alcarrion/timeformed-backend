@@ -1,17 +1,58 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:16
     container_name: timeformed_postgres
     environment:
       POSTGRES_DB: timeformedb
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-    ports:
-      - "6969:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d timeformedb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    # 👇 sin 'ports' => la DB no es accesible desde fuera (más seguro)
+
+  backend:
+    container_name: timeformed_backend
+    build:
+      context: .         # Dockerfile en la raíz del backend
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/timeformedb
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: timeformed_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@timeformed.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5050:80"       # abres http://localhost:5050 en tu navegador
+    restart: unless-stopped
 
 volumes:
   postgres_data:

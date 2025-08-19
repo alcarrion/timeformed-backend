@@ -1,7 +1,7 @@
-
 package com.pucetec.timeformed.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.pucetec.timeformed.exceptions.exceptions.TreatmentMedNotFoundException
@@ -26,19 +26,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 @Import(TreatmentMedControllerTest.MockTreatmentMedConfig::class)
 class TreatmentMedControllerTest {
 
-    @Autowired
-    lateinit var mockMvc: MockMvc
+    @Autowired lateinit var mockMvc: MockMvc
+    @Autowired lateinit var treatmentMedService: TreatmentMedService
 
-    lateinit var objectMapper: ObjectMapper
-
-    @Autowired
-    lateinit var treatmentMedService: TreatmentMedService
+    private lateinit var mapper: ObjectMapper
 
     @BeforeEach
     fun setup() {
-        objectMapper = ObjectMapper()
+        mapper = ObjectMapper()
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            // 👇 para que el JSON del request sea snake_case
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
     }
 
     private val request = TreatmentMedRequest(
@@ -52,6 +51,7 @@ class TreatmentMedControllerTest {
 
     private val response = TreatmentMedResponse(
         id = 1,
+        treatmentId = 1L,  // ✅ AGREGAR ESTA LÍNEA
         med = MedResponse(id = 1, name = "Paracetamol", description = "Pain reliever", userId = 1L),
         dose = "1 tablet",
         frequencyHours = 8,
@@ -66,12 +66,12 @@ class TreatmentMedControllerTest {
         mockMvc.perform(
             post("/api/timeformed/treatment-meds")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                .content(mapper.writeValueAsString(request)) // 👈 genera snake_case
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.dose").value("1 tablet"))
-            .andExpect(jsonPath("$.startHour").value("08:00"))
+            .andExpect(jsonPath("$.start_hour").value("08:00")) // 👈 snake_case
     }
 
     @Test
@@ -82,6 +82,8 @@ class TreatmentMedControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].id").value(1))
+        // si quieres comprobar nested:
+        // .andExpect(jsonPath("$[0].med.user_id").value(1))
     }
 
     @Test
@@ -91,6 +93,7 @@ class TreatmentMedControllerTest {
         mockMvc.perform(get("/api/timeformed/treatment-meds/1"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.start_hour").value("08:00")) // 👈 snake_case
     }
 
     @Test
@@ -105,27 +108,27 @@ class TreatmentMedControllerTest {
 
     @Test
     fun update_returns_ok() {
-        whenever(treatmentMedService.update(1, request)).thenReturn(response)
+        whenever(treatmentMedService.update(eq(1), any())).thenReturn(response)
 
         mockMvc.perform(
             put("/api/timeformed/treatment-meds/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                .content(mapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(1))
-            .andExpect(jsonPath("$.startHour").value("08:00"))
+            .andExpect(jsonPath("$.start_hour").value("08:00")) // 👈 snake_case
     }
 
     @Test
     fun update_returns_not_found() {
-        whenever(treatmentMedService.update(999, request))
+        whenever(treatmentMedService.update(eq(999), any()))
             .thenThrow(TreatmentMedNotFoundException(999))
 
         mockMvc.perform(
             put("/api/timeformed/treatment-meds/999")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                .content(mapper.writeValueAsString(request))
         )
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.error").value("No se encontró la relación tratamiento-medicamento con ID 999"))
@@ -150,7 +153,6 @@ class TreatmentMedControllerTest {
 
     @TestConfiguration
     class MockTreatmentMedConfig {
-        @Bean
-        fun treatmentMedService(): TreatmentMedService = mock()
+        @Bean fun treatmentMedService(): TreatmentMedService = mock()
     }
 }
